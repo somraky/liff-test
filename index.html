@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>LIFF Test Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- LIFF SDK -->
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 16px;
+            background: #f5f5f5;
+        }
+
+        .card {
+            background: #fff;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        button {
+            padding: 10px 16px;
+            border: none;
+            background: #06c755;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        pre {
+            background: #eee;
+            padding: 8px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>LINE LIFF Test</h2>
+
+    <div class="card">
+        <strong>Query Params</strong>
+        <pre id="query"></pre>
+    </div>
+
+    <div class="card">
+        <strong>LIFF Context</strong>
+        <pre id="context"></pre>
+    </div>
+
+    <div class="card">
+        <strong>Profile</strong>
+        <pre id="profile"></pre>
+    </div>
+
+    <button onclick="sendMessage()">Send Test Message</button>
+
+    <script>
+        const LIFF_ID = "YOUR_LIFF_ID"; // 🔴 ใส่ LIFF ID ของคุณตรงนี้
+
+        async function initLiff() {
+            await liff.init({ liffId: LIFF_ID });
+
+            // อ่าน query params
+            const params = new URLSearchParams(window.location.search);
+            const paramObj = {};
+            params.forEach((v, k) => paramObj[k] = v);
+            document.getElementById("query").textContent =
+                JSON.stringify(paramObj, null, 2);
+
+            // LIFF Context
+            const context = liff.getContext();
+            document.getElementById("context").textContent =
+                JSON.stringify(context, null, 2);
+
+            // Profile (ต้อง login)
+            if (!liff.isLoggedIn()) {
+                liff.login();
+                return;
+            }
+
+            const profile = await liff.getProfile();
+            document.getElementById("profile").textContent =
+                JSON.stringify(profile, null, 2);
+        }
+
+        function sendMessage() {
+            if (!liff.isInClient()) {
+                alert("ต้องเปิดจาก LINE App เท่านั้น");
+                return;
+            }
+
+            liff.sendMessages([
+                {
+                    type: "text",
+                    text: "ทดสอบส่งข้อความจาก LIFF"
+                }
+            ]);
+        }
+
+        initLiff();
+    </script>
+
+</body>
+
+</html>
